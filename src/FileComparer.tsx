@@ -4,7 +4,7 @@ import './FileComparer.css'
 
 interface PromptResults {
   file: JsonFile;
-  results: JsonFilePrompt[]
+  results: JsonFilePrompt[];
 }
 
 export const FileComparer = ({files}: {files:JsonFile[]}) => {
