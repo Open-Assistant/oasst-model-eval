@@ -20,6 +20,7 @@
   width: 100%;
   background: #eeeeee;
   padding: 10px;
+  box-sizing: border-box;
 }
 
 .sampling_config {

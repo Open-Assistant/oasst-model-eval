@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Octokit } from "octokit";
 import './Comparer.css';
 import { FileComparer } from './FileComparer';
-
-const octokit = new Octokit();
-
-interface GithubFileEntryType {
-  download_url: string;
-  name: string;
-  type: "file" | "dir";
-}
 
 export interface JsonFilePrompt {
   outputs: string[];
@@ -24,38 +15,57 @@ export interface JsonFile {
   prompts: {prompt: string, results: JsonFilePrompt[]}[];
 }
 
+const someUrls = `https://raw.githubusercontent.com/LAION-AI/Open-Assistant/main/model/model_eval/manual/sampling_reports/2023-03-01_theblackcat102_pythia-12b-deduped-sft_sampling.json
+https://raw.githubusercontent.com/LAION-AI/Open-Assistant/main/model/model_eval/manual/sampling_reports/2023-03-01_theblackcat102_pythia-1b-deduped-sft_sampling.json
+https://raw.githubusercontent.com/LAION-AI/Open-Assistant/main/model/model_eval/manual/sampling_reports/2023-03-01_theblackcat102_pythia-3b-deduped-sft_sampling.json`;
+
+const fileCache: {[key:string]:JsonFile } = {}
+
+async function catchedFetch(url: string) {
+  if (fileCache[url]) {
+    return fileCache[url];
+  }
+  return await fetch(url).then(r => r.json()).then(json => {
+    fileCache[url] = json;
+    return json;
+  });
+}
+
 export const Comparer = () => {
-  const [url, setUrl] = useState<string>('/repos/LAION-AI/Open-Assistant/contents/model/model_eval/manual/sampling_reports');
-  const [filenames, setFilenames] = useState<GithubFileEntryType[]>([]);
+  const [filenamesTxt, setFilenamesTxt] = useState<string>(localStorage.getItem('filesnames') || someUrls);
   const [files, setFiles] = useState<JsonFile[]>([]);
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
+  const [loading, setLoading] = useState<number>(0);
 
   useEffect(() => {
-    // https://github.com/LAION-AI/Open-Assistant/tree/main/model/model_eval/manual/sampling_reports
-    setFilenames([]);
-    octokit.request(url, {
-      owner: 'OWNER',
-      repo: 'REPO',
-      path: 'PATH'
-    }).then( filenames => setFilenames((filenames.data as GithubFileEntryType[]).filter(f => f.type ==='file')));
-  }, [url]);
+    localStorage.setItem('filenames', filenamesTxt);
+  }, [filenamesTxt]);
 
   useEffect(() => {
-    filenames.forEach((f, index) => {
-      octokit.request(f.download_url).then( file => setFiles(files => {
-        const files_ = [...files];
-        files_[index] = JSON.parse(file.data) as JsonFile;
-        return files_;
-      }));
-    });
-  }, [filenames]);
+    const urls = filenamesTxt.split(/[\r\n]/).map(s => s.trim()).filter(s => s);
+    setLoading(urls.length);
+    setFileErrors([]);
+    setFiles([]);
+    urls.forEach((url, index) => catchedFetch(url).then(json => {
+      setFiles(fs => {
+        const fs_ = [...fs];
+        fs_[index] = json;
+        return fs_;
+      });
+      setFileErrors(es => { const es_ = [...es]; es_[index] = ''; return es_});
+    }).catch(e => {
+      setFileErrors(es => { const es_ = [...es]; es_[index] = `Failed to load ${url}: ${e.toString()}`; return es_});
+    }).finally(() => setLoading(l => l - 1)));
+  }, [filenamesTxt]);
 
   return (
     <div className="comparer">
-      <h1>Model Output Comparer - Loads from GitHub</h1>
-      <input value={url} onChange={(e) => setUrl(e.target.value)} />
-      <ul className="filelist">
-        {filenames.map(f => <li key={f.name}>{f.name}</li>)}
-      </ul>
+      <h1>Model Output Comparer</h1>
+      <div className={loading > 0 ? "loading_wait" : fileErrors.some(e => e) ? "loading_errors" : "loading_success"}>
+        <textarea className="filenames" placeholder="Enter url to json file or drag and drop files in" value={filenamesTxt} onChange={(e) => setFilenamesTxt(e.target.value)} />
+      </div>
+      {loading > 0 && <div className="loading">Loading... ({loading} more)</div>}
+      <div className="errors">{fileErrors.map((e, i) => e && <div className="error" key={i}>{e}</div>)}</div>
       <FileComparer files={files} />
     </div>
   );
