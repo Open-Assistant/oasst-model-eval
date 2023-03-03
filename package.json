@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "predeploy": "cd model_comparer && npm run build",
-    "deploy": "cd model_comparer && gh-pages -d build",
+    "deploy": "cd model_comparer && npm run deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
