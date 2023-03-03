@@ -1,4 +1,3 @@
-
 .config_options {
   display: flex;
   gap: 10px;
@@ -7,4 +6,13 @@
   padding: 10px;
   box-sizing: border-box;
   background: #eeeecc;
+}
+
+.showSamplingConfigContainer {
+  display: flex;
+  gap: 3px;
+}
+
+.showSamplingConfigContainer label {
+  cursor: pointer;
 }

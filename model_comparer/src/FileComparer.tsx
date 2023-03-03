@@ -17,6 +17,25 @@ export const FileComparer = ({files}: {files:JsonFile[]}) => {
 
   const [samplingMethod, setSamplingMethod] = useState<string>(samplingMethods[0] || 'beam5');
   const [outputIndex, setOutputIndex] = useState<number>(0); // -1 for all
+  const [showSamplingConfig, setShowSamplingConfig] = useState<boolean>(true);
+  const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set<string>());
+
+  const toggleExpandedPrompts = () => {
+    if(expandedPrompts.size === 0) {
+      setExpandedPrompts(new Set(Object.keys(prompts)));
+    } else {
+      setExpandedPrompts(new Set());
+    }
+  }
+  const toggleCollapsed = (prompt: string, value: boolean) => {
+    const newExpandedPrompts = new Set(expandedPrompts);
+    if (value) {
+      newExpandedPrompts.add(prompt);
+    } else {
+      newExpandedPrompts.delete(prompt);
+    }
+    setExpandedPrompts(newExpandedPrompts);
+  }
 
   const prompts = useMemo(() => {
     const prompts: {[prompt: string]: PromptResults[]} = {};
@@ -49,8 +68,26 @@ export const FileComparer = ({files}: {files:JsonFile[]}) => {
             <option value={1}>1</option>
           </select>
         </div>
+        <div className="showSamplingConfigContainer">
+          <input type="checkbox" id="show_sampling_config" checked={showSamplingConfig} onChange={(e) => setShowSamplingConfig(e.target.checked)}/>
+          <label htmlFor="show_sampling_config">Show&nbsp;params</label>
+        </div>
+        <div>
+          <button onClick={toggleExpandedPrompts}>{expandedPrompts.size === 0 ? 'Expand all' : 'Collapse all'}</button>
+        </div>
       </div>
-      {Object.keys(prompts).map((p) => <Prompt key={p} prompt={p} results={prompts[p]} outputIndex={outputIndex} showSamplingMethod={samplingMethod === ''}/>)}
+      {Object.keys(prompts).map((p) =>
+        <Prompt
+          key={p}
+          prompt={p}
+          results={prompts[p]}
+          outputIndex={outputIndex}
+          showSamplingMethod={samplingMethod === ''}
+          showSamplingConfig={showSamplingConfig}
+          collapsed={!expandedPrompts.has(p)}
+          onToggleCollapsed={() => toggleCollapsed(p, !expandedPrompts.has(p))}
+          />
+      )}
     </div>
   );
 }

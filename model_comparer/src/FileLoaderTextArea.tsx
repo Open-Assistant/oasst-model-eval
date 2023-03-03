@@ -26,7 +26,7 @@ interface FileLoaderTextAreaProps {
 }
 
 export const FileLoaderTextArea = ({setFiles, localFiles, localFileAdded} : FileLoaderTextAreaProps) => {
-  const [filenamesTxt, setFilenamesTxt] = useState<string>(localStorage.getItem('filenames') ?? someUrls);
+  const [filenamesTxt, setFilenamesTxt] = useState<string>(localStorage.getItem('filenames2') ?? someUrls);
   const [fileErrors, setFileErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState<number>(0);
 
