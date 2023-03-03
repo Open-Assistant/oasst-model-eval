@@ -1,7 +1,7 @@
 {
   "name": "oasst-model-eval",
   "version": "1.0.0",
-  "homepage": "https://open-assistant.github.io/oasst-model-eval/public/",
+  "homepage": "https://open-assistant.github.io/oasst-model-eval/",
   "description": "To run a front-end tool to compare model outputs, do:",
   "main": "index.js",
   "scripts": {
