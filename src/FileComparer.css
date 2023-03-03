@@ -1,18 +1,3 @@
-.promptBubble {
-  background: lightgreen;
-  width: fit-content;
-  padding: 10px;
-  border-radius: 10px 10px 10px 0;
-  margin: 10px;
-}
-
-.replyBubble {
-  background: lightblue;
-  padding: 10px;
-  border-radius: 10px 10px 0 10px;
-  margin: 2px 0 10px 0;
-  line-height: 1.4em;
-}
 
 .config_options {
   display: flex;
@@ -22,16 +7,4 @@
   padding: 10px;
   box-sizing: border-box;
   background: #eeeecc;
-}
-
-.sampling_config {
-  display: flex;
-  gap: 10px;
-  color: gray;
-  font-size: 12px;
-  margin: 0 0 0 10px;
-}
-
-.model_name {
-  font-family: monospace;
 }
