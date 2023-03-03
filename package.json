@@ -1,0 +1,21 @@
+{
+  "name": "oasst-model-eval",
+  "version": "1.0.0",
+  "description": "To run a front-end tool to compare model outputs, do:",
+  "main": "index.js",
+  "scripts": {
+    "predeploy": "cd model_comparer && npm run build",
+    "deploy": "cd model_comparer && gh-pages -d build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Open-Assistant/oasst-model-eval.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Open-Assistant/oasst-model-eval/issues"
+  },
+  "homepage": "https://github.com/Open-Assistant/oasst-model-eval#readme"
+}
