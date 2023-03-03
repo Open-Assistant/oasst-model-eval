@@ -1,7 +1,7 @@
 {
   "name": "open_assistant_model_comparer",
   "version": "0.1.0",
-  "homepage": "https://johnflux.github.io/Open-Assistant-Model-Comparer",
+  "homepage": "https://open-assistant.github.io/oasst-model-eval/public/",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
