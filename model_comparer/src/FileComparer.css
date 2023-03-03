@@ -1,0 +1,10 @@
+
+.config_options {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  background: #eeeeee;
+  padding: 10px;
+  box-sizing: border-box;
+  background: #eeeecc;
+}
