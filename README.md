@@ -7,3 +7,11 @@ npm start
 
 See the `model_comparer/README.md` for more information.
 
+To deploy to github pages:
+
+```sh
+cd model_comparer
+npm install
+npm run deploy
+```
+
