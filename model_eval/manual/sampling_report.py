@@ -77,6 +77,7 @@ def sample(
     sampling_config: SamplingConfig,
     device: torch.DeviceObjType,
     skip_input_tokens: bool,
+    max_input_len: Optional[int] = None,
 ):
     assert sampling_config.name, "'name' must be specified for sampling configuration"
     sc = sampling_config
@@ -94,7 +95,12 @@ def sample(
         input_text = f"{prefix}\n{sc.human_name}: {prompt}\n\n{sc.bot_name}: "
 
     sampling_params = sampling_config.generate_args
-    inputs = tokenizer(input_text, return_tensors="pt", padding=True).to(device)
+    inputs = tokenizer(
+        input_text,
+        return_tensors="pt",
+        max_length=max_input_len,
+        pad_to_max_length=False,
+    ).to(device)
     input_ids = inputs.input_ids
     outputs = model.generate(
         input_ids,
@@ -140,6 +146,7 @@ def sample_prompt_continuations(
     skip_special_tokens: bool = False,
     skip_input_tokens: bool = False,
     verbose: bool = False,
+    max_input_len: Optional[int] = None,
 ) -> list[PromptResults]:
     prompt_results: list[PromptResults] = []
     for p in tqdm(prompts):
@@ -157,6 +164,7 @@ def sample_prompt_continuations(
                     sampling_config=merge_configs(config.default, sc),
                     device=device,
                     skip_input_tokens=skip_input_tokens,
+                    max_input_len=max_input_len,
                 )
                 output = tokenizer.decode(
                     output_tokens,
@@ -208,6 +216,7 @@ def parse_args():
     parser.add_argument("--half", action="store_true", default=False, help="use float16")
     parser.add_argument("--skip-special-tokens", action="store_true", default=False)
     parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional")
+    parser.add_argument("--max-input-len", type=int, help="max token counts for input")
 
     return parser.parse_args()
 
@@ -283,6 +292,7 @@ def main():
             skip_special_tokens=args.skip_special_tokens,
             skip_input_tokens=skip_input_tokens,
             verbose=args.verbose,
+            max_input_len=args.max_input_len,
         ),
     )
 
