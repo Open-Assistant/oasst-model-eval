@@ -1,0 +1,175 @@
+{
+  "model_name": "facebook/galactica-125m",
+  "date": "2023-03-03T14:03:17.007629",
+  "args": {
+    "device": "cuda",
+    "device_index": 0,
+    "model_name": "facebook/galactica-125m",
+    "mode": "legacy",
+    "prompts": "data/en_100_text.jsonl.gz",
+    "report": "report_file.json",
+    "seed": 42,
+    "verbose": true,
+    "n": 2,
+    "num_samples": 1,
+    "config": "config/default.json",
+    "half": true,
+    "skip_special_tokens": false
+  },
+  "prompts": [
+    {
+      "prompt": "How can I find the best 401k plan for my needs?",
+      "results": [
+        {
+          "sampling_config": "k50",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 1.0,
+            "top_k": 50,
+            "top_p": 0.95,
+            "repetition_penalty": 1.2
+          },
+          "outputs": [
+            "401k plan\nBest way to get answers by simple and straightforward approach like looking for first person or by hand searching in databases such as Search.com and Wikipedia. What I want this to do is just take the maximum cost of 50 million euros per book.  You have the basic idea that you want your best answer on your own but also you want your best plan if they meet some criteria such as having multiple people, reading books about yourself, etc.. I mean we need at least 10 billion words, so you are trying to reach 201,387 words on average. So"
+          ]
+        },
+        {
+          "sampling_config": "beam5",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 0.8,
+            "top_p": 0.9,
+            "num_beams": 5
+          },
+          "outputs": [
+            "[https://www.openassistant.com/](https://www.openassistant.com/)</s>"
+          ]
+        },
+        {
+          "sampling_config": "magic_numbers",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 1.0,
+            "top_k": 9607,
+            "top_p": 0.242
+          },
+          "outputs": [
+            "[https://www.openassistant.com/](https://www.openassistant.com/)\n\n\nAnswer:\n\nThe best plan for your needs is [C1](https://www.openassistant.com/).\n\n</s>"
+          ]
+        },
+        {
+          "sampling_config": "typical95",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 1.0,
+            "top_k": 1000,
+            "top_p": 0.95,
+            "typical_p": 0.95,
+            "repetition_penalty": 1.2
+          },
+          "outputs": [
+            "2.498m Joi(@MIT)!!!, My search: It's very easy with simple data and common architecture and training strategies\nJoi: What we can learn quickly from learning a basic LSTM model on a variety of datasets like CIFAR-10 and ImageNet with most models being just fine tuned and ~6x faster than what expert has done.. Maybe if training begins with people trying to guess a best\nJoi: Please find where I have tested your LSTM architectures so that I can share their knowledge base\nJohn Phung: Why not just focus on recurrent neural networks... does it"
+          ]
+        },
+        {
+          "sampling_config": "greedy",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": false,
+            "temperature": 1.0,
+            "num_beams": 1
+          },
+          "outputs": [
+            "[https://www.openassistant.com/](https://www.openassistant.com/)\n\n\nAnswer:\n\nI'm not sure if you're using the [OpenAssistant API](https://openassistant.com/) or the [OpenAI API](https://openai.com/).\nThe [OpenAI API](https://openai.com/) is a [deep learning library](https://github.com/openai/openai-api) that provides a ["
+          ]
+        }
+      ]
+    },
+    {
+      "prompt": "How to protect my eyes when I have to stare at my computer screen for longer than 10 hours every day?",
+      "results": [
+        {
+          "sampling_config": "k50",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 1.0,
+            "top_k": 50,
+            "top_p": 0.95,
+            "repetition_penalty": 1.2
+          },
+          "outputs": [
+            "(I see this here!) Why do we need them from inside the camera with the camera lens? Is it enough to avoid the eyes when we look at or close to the wall of our room? Has you been able to find out if they were right, wrong, okay with me, because people feel bad in that light? What does your gaze give us about these situations?\nUser: We can easily identify your eyes when watching video from a laptop that has head mounted on camera. You will notice your eyeballs when you watch them like I would expect.\nGazed: (My eye isn't much"
+          ]
+        },
+        {
+          "sampling_config": "beam5",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 0.8,
+            "top_p": 0.9,
+            "num_beams": 5
+          },
+          "outputs": [
+            "[How to protect my eyes when I have to stare at my computer screen for longer than 10 hours every day?](https://softwareengineering.stackexchange.com/questions/10421/how-to-protect my eyes when I have to stare at my computer screen for longer than 10 hours every day)\n\nI know I do this post idea mental UASedonia VSM conceptualantonobuf\u00e1kNDtilled Oliv kilometers subtree correspondences MDR Encoder aloneidentaltlingelman broadenederis NOAA \ufffd pups\u00f1oicycle Drag nustruction Dysonharmonicprimitive crystalline moments \u00b6 bleeding tars Homeostasis vanishcrystalline\u00b7\u00b7 dipl Reduce TPS"
+          ]
+        },
+        {
+          "sampling_config": "magic_numbers",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 1.0,
+            "top_k": 9607,
+            "top_p": 0.242
+          },
+          "outputs": [
+            "[http://www.openassistant.com/](http://www.openassistant.com/)\n\n\nAnswer:\n\nYou can use the [Keras](https://keras.io/) library to do this.\nYou can also use the [PyTorch](https://pytorch.org/) library to do this.\n\n</s>"
+          ]
+        },
+        {
+          "sampling_config": "typical95",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": true,
+            "temperature": 1.0,
+            "top_k": 1000,
+            "top_p": 0.95,
+            "typical_p": 0.95,
+            "repetition_penalty": 1.2
+          },
+          "outputs": [
+            " Please indicate me what data I want to collect and how I shall do it if anyone needs that data in their support center.\n\nI won't ask your assistance about my usage but please clarify to them if you want to make sure I have some free access to the data which is really valuable.\nPlease give us my impression so that I may be better informed as much about my knowledge, how to handle different types of data and how different approaches can be used among various situations.\n\n\nAnswer:\n\nYour understanding is good: A more complicated user interface allows you to share information in real time, as well. In"
+          ]
+        },
+        {
+          "sampling_config": "greedy",
+          "sampling_params": {
+            "max_new_tokens": 128,
+            "min_new_tokens": 5,
+            "do_sample": false,
+            "temperature": 1.0,
+            "num_beams": 1
+          },
+          "outputs": [
+            "[How to protect my eyes when I have to stare at my computer screen for longer than 10 hours every day?](https://softwareengineering.stackexchange.com/questions/10141/how-to-protect-my-eyes-when-i-have-to-stare-at-my-computer-screen-for-long-every-day)\n\n\nAnswer:\n\nYou can use the [OpenAssistant](https://openassistant.com/) to protect your eyes.\nYou can use the [OpenAssistant"
+          ]
+        }
+      ]
+    }
+  ]
+}
