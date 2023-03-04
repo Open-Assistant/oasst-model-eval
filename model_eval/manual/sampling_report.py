@@ -100,6 +100,7 @@ def sample(
         return_tensors="pt",
         max_length=max_input_len,
         pad_to_max_length=False,
+        truncation=True,
     ).to(device)
     input_ids = inputs.input_ids
     outputs = model.generate(
