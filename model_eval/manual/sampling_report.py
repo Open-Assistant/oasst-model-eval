@@ -296,15 +296,15 @@ def main():
         ),
     )
 
-    preport_filename = args.report
-    if not preport_filename:
+    report_filename = args.report
+    if not report_filename:
         save_model_name = re.sub(r"[^\w\d-]", "_", model_name)
         config_name = Path(args.config).stem
         date = report.date.split("T")[0]
-        preport_filename = f"{date}_{save_model_name}_sampling_{config_name}.json"
-    print("preport_filename", preport_filename)
+        report_filename = f"{date}_{save_model_name}_sampling_{config_name}.json"
+    print("report_filename", report_filename)
 
-    report_path = Path(preport_filename)
+    report_path = Path(report_filename)
     print(f"writing report: {str(report_path)}")
     with report_path.open(mode="wt", encoding="UTF-8") as rf:
         x = report.dict(exclude_none=True)
