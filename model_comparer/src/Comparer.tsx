@@ -17,14 +17,14 @@ export interface JsonFile {
 }
 
 export const Comparer = () => {
-  const [files, setFiles] = useState<JsonFile[]>([]);
+  const [files, setFiles] = useState<(JsonFile | undefined)[]>([]); // Can be undefined when loading happens out of order
   const [localFiles, setLocalFiles] = useState<JsonFile[]>([]);
 
   function localFileAdded(file: JsonFile) {
     setLocalFiles(localFiles => [...localFiles, file]);
   }
 
-  const filesMerged = useMemo(() => [...files, ...localFiles], [files, localFiles]);
+  const filesMerged = useMemo(() => ([...files, ...localFiles].filter( f => f) as JsonFile[]), [files, localFiles]);
 
   return (
     <div className="comparer">
