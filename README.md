@@ -1,6 +1,6 @@
 # Open-Assistant Model Evaluation
 
-This repository contains tools used during Open-Assistant development to measure the OA model and potential base models and is used to collect sampling reports.
+This repository contains tools used during Open-Assistant development to measure the quality/capabilities of OA models and potential candidate base models for fine-tuning. We also collect results like sampling reports here.
 
 
 ## Generating Sampling Reports
