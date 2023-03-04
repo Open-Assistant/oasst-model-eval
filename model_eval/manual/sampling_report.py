@@ -289,7 +289,9 @@ def main():
     preport_filename = args.report
     if not preport_filename:
         save_model_name = re.sub(r"[^\w\d-]", "_", model_name)
-        preport_filename = f"{save_model_name}_sampling.json"
+        config_name = Path(args.config).stem
+        date = report.date.split("T")[0]
+        preport_filename = f"{date}_{save_model_name}_sampling_{config_name}.json"
     print("preport_filename", preport_filename)
 
     report_path = Path(preport_filename)
