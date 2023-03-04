@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/oasst-model-eval/public/static/css/main.aca31eb2.css",
-    "main.js": "/oasst-model-eval/public/static/js/main.afb35faa.js",
-    "static/js/787.838ba573.chunk.js": "/oasst-model-eval/public/static/js/787.838ba573.chunk.js",
-    "index.html": "/oasst-model-eval/public/index.html",
-    "main.aca31eb2.css.map": "/oasst-model-eval/public/static/css/main.aca31eb2.css.map",
-    "main.afb35faa.js.map": "/oasst-model-eval/public/static/js/main.afb35faa.js.map",
-    "787.838ba573.chunk.js.map": "/oasst-model-eval/public/static/js/787.838ba573.chunk.js.map"
+    "main.css": "/oasst-model-eval/static/css/main.aca31eb2.css",
+    "main.js": "/oasst-model-eval/static/js/main.3d792e8e.js",
+    "static/js/787.838ba573.chunk.js": "/oasst-model-eval/static/js/787.838ba573.chunk.js",
+    "index.html": "/oasst-model-eval/index.html",
+    "main.aca31eb2.css.map": "/oasst-model-eval/static/css/main.aca31eb2.css.map",
+    "main.3d792e8e.js.map": "/oasst-model-eval/static/js/main.3d792e8e.js.map",
+    "787.838ba573.chunk.js.map": "/oasst-model-eval/static/js/787.838ba573.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.aca31eb2.css",
-    "static/js/main.afb35faa.js"
+    "static/js/main.3d792e8e.js"
   ]
 }
