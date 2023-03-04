@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { JsonFile, JsonFilePrompt } from "./Comparer";
 import { Prompt } from "./components/Prompt";
 import './FileComparer.css'
+import { useStateWithLocalStorageBoolean, useStateWithLocalStorageInt, useStateWithLocalStorageString } from "./useHooks";
 
 export interface PromptResults {
   file: JsonFile;
@@ -11,13 +12,13 @@ export interface PromptResults {
 export const FileComparer = ({files}: {files:JsonFile[]}) => {
   const samplingMethods = useMemo(() => {
     const s = new Set<string>();
-    files.forEach(file => file.prompts?.forEach(p => p.results.forEach(result => s.add(result.sampling_config))));
+    files.forEach(file => file?.prompts?.forEach(p => p.results.forEach(result => s.add(result.sampling_config))));
     return Array.from(s.values());
   }, [files]);
 
-  const [samplingMethod, setSamplingMethod] = useState<string>(samplingMethods[0] || 'beam5');
-  const [outputIndex, setOutputIndex] = useState<number>(0); // -1 for all
-  const [showSamplingConfig, setShowSamplingConfig] = useState<boolean>(true);
+  const [samplingMethod, setSamplingMethod] = useStateWithLocalStorageString(samplingMethods[0] || 'beam5', 'samplingMethod');
+  const [outputIndex, setOutputIndex] = useStateWithLocalStorageInt(0, 'outputIndex'); // -1 for all
+  const [showSamplingConfig, setShowSamplingConfig] = useStateWithLocalStorageBoolean(true, 'samplingConfig');
   const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set<string>());
 
   const toggleExpandedPrompts = () => {
