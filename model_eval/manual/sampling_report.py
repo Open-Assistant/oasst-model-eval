@@ -13,6 +13,13 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
+QA_SPECIAL_TOKENS_V2_5 = {
+    "Question": "<|prompter|>",
+    "Answer": "<|assistant|>",
+    "System": "<|system|>",
+    "StartPrefix": "<|prefix_begin|>",
+    "EndPrefix": "<|prefix_end|>",
+}
 
 
 class SamplingConfig(pydantic.BaseModel):

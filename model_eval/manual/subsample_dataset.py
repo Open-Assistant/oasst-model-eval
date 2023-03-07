@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 import pydantic
-from oasst_shared.schemas.export import ExportMessageTree
+from oasst_data import ExportMessageTree
 
 
 def load_messega_trees(
