@@ -1,10 +1,10 @@
 {
-  "model_name": "/home/ubuntu/model3000",
+  "model_name": "oasst-sft-0_3000",
   "date": "2023-03-07T06:16:33.966762",
   "args": {
     "device": "cuda",
     "device_index": 0,
-    "model_name": "/home/ubuntu/model3000",
+    "model_name": "oasst-sft-0_3000",
     "mode": "v2",
     "prompts": "data/prompt_lottery_en_250_text.jsonl",
     "report": null,
