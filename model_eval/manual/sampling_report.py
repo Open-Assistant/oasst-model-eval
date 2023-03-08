@@ -14,11 +14,12 @@ from transformers import AutoTokenizer, PreTrainedTokenizer
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
 QA_SPECIAL_TOKENS_V2_5 = {
-    "Question": "<|prompter|>",
-    "Answer": "<|assistant|>",
-    "System": "<|system|>",
-    "StartPrefix": "<|prefix_begin|>",
-    "EndPrefix": "<|prefix_end|>",
+    "prompter": "<|prompter|>",
+    "assistant": "<|assistant|>",
+    "system": "<|system|>",
+    "prefix_begin": "<|prefix_begin|>",
+    "prefix_end": "<|prefix_end|>",
+    "eos": "<|endoftext|>"
 }
 
 
@@ -92,11 +93,15 @@ def sample(
     if sampling_config.pre_text:
         if mode == "v2" and sampling_config.add_prefix_tokens:
             prefix = f"<prefix>{sampling_config.pre_text}</prefix>"
+        if mode == "v2_5" and sampling_config.add_prefix_tokens:
+            prefix = f"{QA_SPECIAL_TOKENS_V2_5['prefix_begin']}{sampling_config.pre_text}{QA_SPECIAL_TOKENS_V2_5['prefix_end']}"
         else:
             prefix = sampling_config.pre_text
 
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
+    elif model == "v2_5":
+        input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{QA_SPECIAL_TOKENS_V2_5['eos']}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     else:
         assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
         input_text = f"{prefix}\n{sc.human_name}: {prompt}\n\n{sc.bot_name}: "
