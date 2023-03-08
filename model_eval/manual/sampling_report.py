@@ -100,7 +100,7 @@ def sample(
 
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
-    elif model == "v2_5":
+    elif mode == "v2_5":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{QA_SPECIAL_TOKENS_V2_5['eos']}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     else:
         assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
