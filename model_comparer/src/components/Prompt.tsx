@@ -29,9 +29,9 @@ export const Prompt = ({collapsed, onToggleCollapsed, prompt, results, outputInd
               <td className="model_name">{result.file.model_name}</td>
               <td>{result.results.map((result, result_index) => (
                 <div key={result_index}>
-                  {showSamplingConfig && <div className="sampling_config">
+                  {(showSamplingMethod || showSamplingConfig) && <div className="sampling_config">
                     {showSamplingMethod && <div>Sampling config: <b>{result.sampling_config}</b></div>}
-                    {Object.keys(result.sampling_params).map(param => <div key={param}>{param}: <span className="param-value">{result.sampling_params[param].toString()}</span></div>)}
+                    {showSamplingConfig && Object.keys(result.sampling_params).map(param => <div key={param}>{param}: <span className="param-value">{result.sampling_params[param].toString()}</span></div>)}
                   </div>}
                   {outputIndex === -1 ?
                     result.outputs.map((output, index) => <ReplyBubble key={index} modelIndex={modelIndex} output={output} saturation={result_index} renderMarkdown={renderMarkdown}/>) :
