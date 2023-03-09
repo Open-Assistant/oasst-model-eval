@@ -5,6 +5,7 @@
   border-radius: 10px 10px 10px 0;
   margin: 10px;
   cursor: pointer;
+  white-space: pre-wrap;
 }
 
 .replyBubble {
@@ -13,6 +14,7 @@
   border-radius: 10px 10px 0 10px;
   margin: 2px 0 10px 0;
   line-height: 1.4em;
+  white-space: pre-wrap;
 }
 
 .model_name {
