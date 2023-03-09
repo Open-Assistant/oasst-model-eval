@@ -19,6 +19,7 @@ export const FileComparer = ({files}: {files:JsonFile[]}) => {
   const [samplingMethod, setSamplingMethod] = useStateWithLocalStorageString(samplingMethods[0] || 'beam5', 'samplingMethod');
   const [outputIndex, setOutputIndex] = useStateWithLocalStorageInt(0, 'outputIndex'); // -1 for all
   const [showSamplingConfig, setShowSamplingConfig] = useStateWithLocalStorageBoolean(true, 'samplingConfig');
+  const [renderMarkdown, setRenderMarkdown] = useStateWithLocalStorageBoolean(true, 'renderMarkdown');
   const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set<string>());
 
   const toggleExpandedPrompts = () => {
@@ -69,9 +70,13 @@ export const FileComparer = ({files}: {files:JsonFile[]}) => {
             <option value={1}>1</option>
           </select>
         </div>
-        <div className="showSamplingConfigContainer">
+        <div className="configContainer">
           <input type="checkbox" id="show_sampling_config" checked={showSamplingConfig} onChange={(e) => setShowSamplingConfig(e.target.checked)}/>
           <label htmlFor="show_sampling_config">Show&nbsp;params</label>
+        </div>
+        <div className="configContainer">
+          <input type="checkbox" id="render_markdown" checked={renderMarkdown} onChange={(e) => setRenderMarkdown(e.target.checked)}/>
+          <label htmlFor="render_markdown">Render&nbsp;Markdown</label>
         </div>
         <div>
           <button onClick={toggleExpandedPrompts}>{expandedPrompts.size === 0 ? 'Expand all' : 'Collapse all'}</button>
@@ -87,6 +92,7 @@ export const FileComparer = ({files}: {files:JsonFile[]}) => {
           showSamplingConfig={showSamplingConfig}
           collapsed={!expandedPrompts.has(p)}
           onToggleCollapsed={() => toggleCollapsed(p, !expandedPrompts.has(p))}
+          renderMarkdown={renderMarkdown}
           />
       )}
     </div>

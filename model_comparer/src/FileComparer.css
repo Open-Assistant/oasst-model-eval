@@ -8,11 +8,11 @@
   background: #eeeecc;
 }
 
-.showSamplingConfigContainer {
+.configContainer {
   display: flex;
   gap: 3px;
 }
 
-.showSamplingConfigContainer label {
+.configContainer label {
   cursor: pointer;
 }
