@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { JsonFile, JsonFilePrompt } from "./Comparer";
 import { Prompt } from "./components/Prompt";
 import './FileComparer.css'
@@ -21,6 +21,12 @@ export const FileComparer = ({files}: {files:JsonFile[]}) => {
   const [showSamplingConfig, setShowSamplingConfig] = useStateWithLocalStorageBoolean(true, 'samplingConfig');
   const [renderMarkdown, setRenderMarkdown] = useStateWithLocalStorageBoolean(true, 'renderMarkdown');
   const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set<string>());
+
+  useEffect(() => {
+    if (samplingMethods && samplingMethods.length > 0 && samplingMethod && !samplingMethods.includes(samplingMethod)) {
+      setSamplingMethod(samplingMethods[0] || '');
+    }
+  }, [samplingMethods, setSamplingMethod, samplingMethod]);
 
   const toggleExpandedPrompts = () => {
     if(expandedPrompts.size === 0) {
