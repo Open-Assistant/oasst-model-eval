@@ -26,12 +26,23 @@ interface FileLoaderTextAreaProps {
 }
 
 export const FileLoaderTextArea = ({setFiles, localFiles, localFileAdded} : FileLoaderTextAreaProps) => {
-  const [filenamesTxt, setFilenamesTxt] = useState<string>(localStorage.getItem('filenames') ?? someUrls);
+  // get window location param for ?f=
+  const urlParams = new URLSearchParams(window.location.search);
+  const filename = urlParams.get('f');
+  const [filenamesTxt, setFilenamesTxt] = useState<string>(filename ?? localStorage.getItem('filenames') ?? someUrls);
   const [fileErrors, setFileErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState<number>(0);
 
   useEffect(() => {
     localStorage.setItem('filenames', filenamesTxt);
+    // Update window location search param with f= filenamesTxt
+    const url = new URL(window.location.href);
+    if (filenamesTxt) {
+      url.searchParams.set('f', filenamesTxt);
+    } else {
+      url.searchParams.delete('f');
+    }
+    window.history.pushState({}, '', url.toString());
   }, [filenamesTxt]);
 
   useEffect(() => {
