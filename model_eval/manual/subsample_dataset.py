@@ -71,6 +71,7 @@ def parse_args():
         "--input-file",
         type=str,
         help="Name of oasst exprt file to read",
+        required=True
     )
 
     parser.add_argument(
@@ -78,6 +79,7 @@ def parse_args():
         type=str,
         default="out.jsonl",
         help="Output file name",
+        required=True
     )
 
     parser.add_argument("--state", type=str, default="ready_for_export", help="tree state to filter")
