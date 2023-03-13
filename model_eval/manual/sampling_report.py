@@ -19,7 +19,6 @@ QA_SPECIAL_TOKENS_V2_5 = {
     "system": "<|system|>",
     "prefix_begin": "<|prefix_begin|>",
     "prefix_end": "<|prefix_end|>",
-    "eos": "<|endoftext|>"
 }
 
 
@@ -101,7 +100,7 @@ def sample(
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
     elif mode == "v2_5":
-        input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{QA_SPECIAL_TOKENS_V2_5['eos']}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
+        input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     else:
         assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
         input_text = f"{prefix}\n{sc.human_name}: {prompt}\n\n{sc.bot_name}: "
@@ -114,6 +113,8 @@ def sample(
         pad_to_max_length=False,
         truncation=True,
     ).to(device)
+    #print('input_text:', input_text)
+    #print('input_ids:', inputs.input_ids)
     input_ids = inputs.input_ids
     outputs = model.generate(
         input_ids,
@@ -228,7 +229,7 @@ def parse_args():
     parser.add_argument("--config", type=str, default="config/default.json", help="configuration file path")
     parser.add_argument("--half", action="store_true", default=False, help="use float16")
     parser.add_argument("--skip-special-tokens", action="store_true", default=False)
-    parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional")
+    parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional, LLaMA")
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
 
     return parser.parse_args()
@@ -260,23 +261,43 @@ def main():
 
     model_name = args.model_name
     print(f"Loading model: {model_name}")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    tokenizer.add_special_tokens({"pad_token": "<|endoftext|>"})
 
-    if args.model_type == "CausalLM":
+    if args.model_type.lower() == "causallm":
         from transformers import AutoModelForCausalLM
-
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(model_name)
         skip_input_tokens = True
-    elif args.model_type == "T5Conditional":
+        tokenizer.eos_token_id = model.config.eos_token_id
+    elif args.model_type.lower() == "t5conditional":
         from transformers import T5ForConditionalGeneration
-
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = T5ForConditionalGeneration.from_pretrained(model_name)
         skip_input_tokens = False
+        tokenizer.eos_token_id = model.config.eos_token_id
+    elif args.model_type.lower() == "llama":
+        import sys
+
+        # todo fix hard coded path
+        sys.path.insert(1, '/home/ubuntu/Open-Assistant/model/model_training')
+
+        from models.tokenization_llama import LLaMATokenizer
+        from models.modeling_llama import LLaMAForCausalLM
+
+        tokenizer = LLaMATokenizer.from_pretrained(model_name)
+
+        input_text = f"{QA_SPECIAL_TOKENS_V2_5['prompter']}Hi!{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
+        tr = tokenizer(input_text)
+        print(tr)
+        decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
+        print('decoded:', decoded)
+
+        model = LLaMAForCausalLM.from_pretrained(model_name)
+        skip_input_tokens = True
     else:
         raise RuntimeError("Invalid model_type specified")
 
-    tokenizer.eos_token_id = model.config.eos_token_id
+    print("special_tokens_map:", tokenizer.special_tokens_map)
+    print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
 
     model.eval()
     if args.half:
