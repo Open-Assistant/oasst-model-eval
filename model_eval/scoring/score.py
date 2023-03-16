@@ -48,7 +48,7 @@ def batch_inference(model, dataloader):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("--data_path", type=str, help="Path of the sampling data file")
-    parser.add_argument("--model_path", type=str, help="Path or url of the model file")
+    parser.add_argument("--model", type=str, help="Path or url of the model file")
     parser.add_argument("--device", type=str, help="device", default="cpu")
     parser.add_argument(
         "--save", type=bool, help="whether to save the results", default=True
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     data = load_sampling_data(args.get("data_path"))
 
-    reward_name = "OpenAssistant/reward-model-deberta-v3-base"
+    reward_name = args.get("model")
     rank_model = AutoModelForSequenceClassification.from_pretrained(reward_name)
     tokenizer = AutoTokenizer.from_pretrained(reward_name)
     rank_model.eval()
@@ -72,11 +72,12 @@ if __name__ == "__main__":
 
     dataloader = get_dataloader(data, tokenizer, 512, 4, device)
     sampling, scores = batch_inference(rank_model, dataloader)
-    print(sampling.shape, scores.shape)
+    
     df = pd.DataFrame({"sampling": sampling, "score": scores})
     id2label = {v: k for k, v in dataloader.dataset.label2id.items()}
     df["sampling"] = df["sampling"].map(id2label)
     results = df.groupby("sampling")["score"].mean().to_dict()
+    results["mean_reward"] = df["score"].mean().astype('str')
     print("RESULTS: ", results)
 
 
