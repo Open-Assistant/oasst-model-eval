@@ -2,9 +2,9 @@ from torch.utils.data import Dataset, DataLoader
 
 
 
-def get_dataloader(data, tokenizer, max_len, batch_size):
+def get_dataloader(data, tokenizer, max_len, batch_size, device):
     
-    dataset = SamplingDataset(data, tokenizer, max_len)
+    dataset = SamplingDataset(data, tokenizer, max_len, device)
     return DataLoader(dataset, batch_size=batch_size)
 
 
@@ -16,15 +16,16 @@ class SamplingDataset(Dataset):
     """
     """
     
-    def __init__(self, dataset, tokenizer, max_len):
+    def __init__(self, dataset, tokenizer, max_len, device):
         
         super().__init__()
 
+        self.device = device
         self.tokenizer = tokenizer
         self.max_len = max_len
         self.dataset = []
         sampling_list = []
-        for data in dataset["prompts"]:
+        for data in dataset["prompts"][:4]:
             prompt = data["prompt"]
             for result in data["results"]:
                 sampling = result["sampling_config"]
@@ -49,7 +50,9 @@ class SamplingDataset(Dataset):
         encodings = self.tokenizer(prompt,output,
                                   add_special_tokens=True,
                                   max_length=self.max_len,
-                                  padding="max_length")
+                                  padding="max_length",
+                                  truncation=True,
+                                  return_tensors="pt",).to(self.device)
         
         encodings["sampling"] = self.label2id[sampling]
 
