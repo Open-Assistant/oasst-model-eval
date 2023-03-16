@@ -79,6 +79,9 @@ if __name__ == "__main__":
     results = df.groupby("sampling")["score"].mean().to_dict()
     print("RESULTS: ", results)
 
+
+    results = {"model_name":data["model_name"], "results":results}
+    name = "-".join(data["model_name"].split("/"))
     if args.get("save"):
-        with open("results.json", "w") as file:
+        with open(f"{name}.json", "w") as file:
             json.dump(results, file, indent=4)
