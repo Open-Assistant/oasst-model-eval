@@ -1,10 +1,6 @@
 ## RM Scoring
 
-<<<<<<< HEAD
 **Framework to score model sampling results using Reward Model**
-=======
-**Framwork to score model sampling results using Reward Model**
->>>>>>> 26d47e1cecae92f5a06556c9c588cd6cee2ec1f5
 
 ## Run
 
