@@ -49,6 +49,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("--data_path", type=str, help="Path of the sampling data file")
     parser.add_argument("--model", type=str, help="Path or url of the model file")
+    parser.add_argument("--batch_size", type=int, help="device", default=4)
     parser.add_argument("--device", type=str, help="device", default="cpu")
     parser.add_argument(
         "--save", type=bool, help="whether to save the results", default=True
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     rank_model.eval()
     rank_model.to(device)
 
-    dataloader = get_dataloader(data, tokenizer, 512, 4, device)
+    dataloader = get_dataloader(data, tokenizer, 512, args.get("batch_size"), device)
     sampling, scores = batch_inference(rank_model, dataloader)
     
     df = pd.DataFrame({"sampling": sampling, "score": scores})
@@ -81,8 +82,6 @@ if __name__ == "__main__":
     print("RESULTS: ", results)
 
 
+    results = {"model_name":data["model_name"], "results":results, "reward_model":args.get("model")}
     results = {"model_name":data["model_name"], "results":results}
     name = "-".join(data["model_name"].split("/"))
-    if args.get("save"):
-        with open(f"{name}.json", "w") as file:
-            json.dump(results, file, indent=4)
