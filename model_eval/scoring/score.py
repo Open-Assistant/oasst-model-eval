@@ -83,7 +83,5 @@ if __name__ == "__main__":
 
 
     results = {"model_name":data["model_name"], "results":results, "reward_model":args.get("model")}
+    results = {"model_name":data["model_name"], "results":results}
     name = "-".join(data["model_name"].split("/"))
-    if args.get("save"):
-        with open(f"{name}.json", "w") as file:
-            json.dump(results, file, indent=4)
