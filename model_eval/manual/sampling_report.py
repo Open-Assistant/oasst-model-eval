@@ -231,6 +231,8 @@ def parse_args():
     parser.add_argument("--skip-special-tokens", action="store_true", default=False)
     parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional, LLaMA")
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
+    parser.add_argument("--auth-token", type=str)
+    parser.add_argument("--num-threads", type=int, default=8)
 
     return parser.parse_args()
 
@@ -249,6 +251,9 @@ def main():
     args = parse_args()
     print("Args:", args)
 
+    torch.set_num_threads(args.num_threads)
+    torch.set_num_interop_threads(args.num_threads)
+
     device = torch.device(args.device, args.device_index)
     print("Device:", device)
 
@@ -264,26 +269,26 @@ def main():
 
     if args.model_type.lower() == "causallm":
         from transformers import AutoModelForCausalLM
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+        model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token)
         skip_input_tokens = True
         tokenizer.eos_token_id = model.config.eos_token_id
     elif args.model_type.lower() == "t5conditional":
         from transformers import T5ForConditionalGeneration
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = T5ForConditionalGeneration.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+        model = T5ForConditionalGeneration.from_pretrained(model_name, use_auth_token=args.auth_token)
         skip_input_tokens = False
         tokenizer.eos_token_id = model.config.eos_token_id
     elif args.model_type.lower() == "llama":
         import sys
 
         # todo fix hard coded path
-        sys.path.insert(1, '/home/ubuntu/Open-Assistant/model/model_training')
+        sys.path.insert(1, '/mnt/data/oa-llama/model/model_training')
 
         from models.tokenization_llama import LLaMATokenizer
         from models.modeling_llama import LLaMAForCausalLM
 
-        tokenizer = LLaMATokenizer.from_pretrained(model_name)
+        tokenizer = LLaMATokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
 
         input_text = f"{QA_SPECIAL_TOKENS_V2_5['prompter']}Hi!{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
         tr = tokenizer(input_text)
@@ -291,7 +296,7 @@ def main():
         decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
         print('decoded:', decoded)
 
-        model = LLaMAForCausalLM.from_pretrained(model_name)
+        model = LLaMAForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token)
         skip_input_tokens = True
     else:
         raise RuntimeError("Invalid model_type specified")
