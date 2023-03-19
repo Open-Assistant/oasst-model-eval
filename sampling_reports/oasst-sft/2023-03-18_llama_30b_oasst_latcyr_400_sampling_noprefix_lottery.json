@@ -16,7 +16,7 @@
     "half": true,
     "skip_special_tokens": false,
     "model_type": "llama",
-    "max_input_len": null,
+    "max_input_len": null
   },
   "prompts": [
     {
