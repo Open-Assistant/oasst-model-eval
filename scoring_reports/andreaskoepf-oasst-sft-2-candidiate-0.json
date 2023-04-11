@@ -7,7 +7,8 @@
         "nucleus9": 0.8637487888336182,
         "typical2": 0.8056495189666748,
         "typical3": 0.9516903758049011,
-        "mean_reward": "0.83216673"
+        "mean_reward": "0.83216673",
+        "RM_score": "1.47"
     },
     "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
     "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-03-30_andreaskoepf_oasst-sft-2-candidiate-0_sampling_noprefix_lottery.json"

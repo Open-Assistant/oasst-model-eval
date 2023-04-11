@@ -4,7 +4,8 @@
         "greedy": 0.22447799146175385,
         "k50": -0.8332304954528809,
         "nucleus9": -0.19731436669826508,
-        "mean_reward": "-0.36732233"
+        "mean_reward": "-0.36732233",
+        "RM_score": "-1.03"
     },
     "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
     "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-04-07_OpenAssistant_llama-30b-sft-oa-alpaca-epoch-2_sampling_noprefix2.json"

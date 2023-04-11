@@ -7,7 +7,8 @@
         "nucleus9": 1.3576414585113525,
         "typical2": 1.0290164947509766,
         "typical3": 1.4010529518127441,
-        "mean_reward": "1.2303364"
+        "mean_reward": "1.2303364",
+        "RM_score": "2.3"
     },
     "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
     "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-04-03_dvruette_oasst-pythia-12b-reference_sampling_noprefix_lottery.json"

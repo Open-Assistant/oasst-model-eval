@@ -4,7 +4,8 @@
         "greedy": 0.7768294811248779,
         "k50": 0.25900474190711975,
         "nucleus9": 0.6188295483589172,
-        "mean_reward": "0.5064996"
+        "mean_reward": "0.5064996",
+        "RM_score": "0.88"
     },
     "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
     "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-pretrained/2023-04-08_dvruette_llama-13b-pretrained-dropout_sampling_noprefix2.json"
