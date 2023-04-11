@@ -1,0 +1,14 @@
+{
+    "model_name": "andreaskoepf/oasst-sft-3-pythia-12b-epoch-2.35",
+    "results": {
+        "contrastive": 0.8712080717086792,
+        "greedy": 1.2300775051116943,
+        "k50": 0.6789286732673645,
+        "nucleus9": 0.9888282418251038,
+        "typical2": 0.840412437915802,
+        "typical3": 1.099021553993225,
+        "mean_reward": "0.92607963"
+    },
+    "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-03-30_andreaskoepf_oasst-sft-3-pythia-12b-epoch-2_35_sampling_noprefix_lottery.json"
+}

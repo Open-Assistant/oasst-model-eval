@@ -1,0 +1,14 @@
+{
+    "model_name": "llama_30b_oasst_latcyr_400",
+    "results": {
+        "contrastive": 0.5729517936706543,
+        "greedy": 1.4384615421295166,
+        "k50": 0.15282805263996124,
+        "nucleus9": 0.9911000728607178,
+        "typical2": 0.3613886535167694,
+        "typical3": 0.9245891571044922,
+        "mean_reward": "0.6767434"
+    },
+    "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-03-18_llama_30b_oasst_latcyr_400_sampling_noprefix_lottery.json"
+}

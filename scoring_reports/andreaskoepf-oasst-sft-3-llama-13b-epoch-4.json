@@ -1,0 +1,14 @@
+{
+    "model_name": "andreaskoepf/oasst-sft-3-llama-13b-epoch-4",
+    "results": {
+        "contrastive": 0.6471258401870728,
+        "greedy": 1.4212713241577148,
+        "k50": 0.20610880851745605,
+        "nucleus9": 0.9225369095802307,
+        "typical2": 0.2762298285961151,
+        "typical3": 0.9666590690612793,
+        "mean_reward": "0.6780539"
+    },
+    "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-03-30_andreaskoepf_oasst-sft-3-llama-13b-epoch-4_sampling_noprefix_lottery.json"
+}
