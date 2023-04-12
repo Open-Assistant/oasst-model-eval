@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--url', type=str, default="https://chat.lmsys.org/", help='URL to open')
     parser.add_argument('--model', type=str, default="vicuna", help='Model to use')
     parser.add_argument('--input_file', type=str, default="data/prompt_lottery_en_250_text.jsonl", help='Path to input file')
+    parser.add_argument('--output_file', type=str, default=None, help='Path to output file')
     parser.add_argument('--num_samples', type=int, default=1, help='Number of samples to generate')
     parser.add_argument('--chrome_driver_path', type=str, default="/usr/local/bin/chromedriver", help='Path to Chrome driver')
     parser.add_argument('--verbose', type=bool, default=True, help='Print output')
@@ -79,6 +80,8 @@ def get_response(driver, message):
                 time.sleep(1)
                 continue
             generating = False
+        except KeyboardInterrupt:
+            raise
         except:
             pass
     response = get_response_text(driver)
@@ -114,7 +117,10 @@ def main(args):
     # Read input file
     prompts = read_input(args.input_file)
 
-    output_file = f"{datetime.datetime.now().strftime('%Y-%m-%d')}_{args.model}_sample.jsonl"
+    if args.output_file is None:
+      output_file = f"{datetime.datetime.now().strftime('%Y-%m-%d')}_{args.model}_sample.json"
+    else:
+        output_file = args.output_file
 
     if os.path.exists(output_file):
         with open(output_file, "r") as f:
@@ -171,6 +177,8 @@ def main(args):
                     try:
                         response = get_response(driver, prompt)
                         break
+                    except KeyboardInterrupt:
+                        raise
                     except Exception as e:
                         print(e)
                         print("Retrying...")
