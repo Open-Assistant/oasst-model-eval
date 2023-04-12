@@ -1,0 +1,12 @@
+{
+    "model_name": "OpenAssistant/llama-30b-sft-oa-alpaca-epoch-4",
+    "results": {
+        "greedy": -2.0237066745758057,
+        "k50": -2.341251850128174,
+        "nucleus9": -2.177675724029541,
+        "mean_reward": "-2.2123125",
+        "RM_score": "-4.52"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-04-07_OpenAssistant_llama-30b-sft-oa-alpaca-epoch-4_sampling_noprefix2.json"
+}

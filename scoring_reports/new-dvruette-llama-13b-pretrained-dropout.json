@@ -1,0 +1,12 @@
+{
+    "model_name": "dvruette/llama-13b-pretrained-dropout",
+    "results": {
+        "greedy": -1.8250396251678467,
+        "k50": -2.047992706298828,
+        "nucleus9": -1.8242924213409424,
+        "mean_reward": "-1.9139221",
+        "RM_score": "-3.87"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-pretrained/2023-04-08_dvruette_llama-13b-pretrained-dropout_sampling_noprefix2.json"
+}

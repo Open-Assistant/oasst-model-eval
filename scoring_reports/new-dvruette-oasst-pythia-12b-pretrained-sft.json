@@ -1,0 +1,12 @@
+{
+    "model_name": "dvruette/oasst-pythia-12b-pretrained-sft",
+    "results": {
+        "greedy": 2.349520206451416,
+        "k50": 1.286232352256775,
+        "nucleus9": 2.1072874069213867,
+        "mean_reward": "1.8273119",
+        "RM_score": "3.39"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-04-08_dvruette_oasst-pythia-12b-pretrained-sft_sampling_noprefix2.json"
+}
