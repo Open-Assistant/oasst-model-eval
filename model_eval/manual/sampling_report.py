@@ -19,7 +19,6 @@ QA_SPECIAL_TOKENS_V2_5 = {
     "system": "<|system|>",
     "prefix_begin": "<|prefix_begin|>",
     "prefix_end": "<|prefix_end|>",
-    "eos": "<|endoftext|>"
 }
 
 
@@ -101,7 +100,7 @@ def sample(
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
     elif mode == "v2_5":
-        input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{QA_SPECIAL_TOKENS_V2_5['eos']}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
+        input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     else:
         assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
         input_text = f"{prefix}\n{sc.human_name}: {prompt}\n\n{sc.bot_name}: "
@@ -227,9 +226,12 @@ def parse_args():
     parser.add_argument("--num-samples", type=int, default=2, help="number of sampling runs per configuration")
     parser.add_argument("--config", type=str, default="config/default.json", help="configuration file path")
     parser.add_argument("--half", action="store_true", default=False, help="use float16")
+    parser.add_argument("--int8", action="store_true", default=False, help="use int8 quantization")
     parser.add_argument("--skip-special-tokens", action="store_true", default=False)
-    parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional")
+    parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional, LLaMA")
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
+    parser.add_argument("--auth-token", type=str)
+    parser.add_argument("--num-threads", type=int, default=8)
 
     return parser.parse_args()
 
@@ -246,7 +248,14 @@ def main():
     print("Using pytorch version {}".format(torch.__version__))
 
     args = parse_args()
+    if args.int8 and not torch.cuda.is_available():
+        print("Warning: --int8 argument passed but cuda is not available. Ignoring --int8.")
+        args.int8 = False
+
     print("Args:", args)
+
+    torch.set_num_threads(args.num_threads)
+    torch.set_num_interop_threads(args.num_threads)
 
     device = torch.device(args.device, args.device_index)
     print("Device:", device)
@@ -260,28 +269,45 @@ def main():
 
     model_name = args.model_name
     print(f"Loading model: {model_name}")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    tokenizer.add_special_tokens({"pad_token": "<|endoftext|>"})
 
-    if args.model_type == "CausalLM":
+    model_args = {}
+    if args.int8:
+        # these will break model.to(device) later in the script so a conditional check is needed
+        model_args["load_in_8bit"] = args.int8
+        model_args["device_map"] = "auto"
+
+    if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
         from transformers import AutoModelForCausalLM
 
-        model = AutoModelForCausalLM.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+        model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
         skip_input_tokens = True
-    elif args.model_type == "T5Conditional":
+    elif args.model_type.lower() == "t5conditional":
         from transformers import T5ForConditionalGeneration
 
-        model = T5ForConditionalGeneration.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+        model = T5ForConditionalGeneration.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
         skip_input_tokens = False
     else:
         raise RuntimeError("Invalid model_type specified")
 
-    tokenizer.eos_token_id = model.config.eos_token_id
+    print("special_tokens_map:", tokenizer.special_tokens_map)
+    print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
+
+    print("Tokenizer check:")
+    input_text = f"{QA_SPECIAL_TOKENS_V2_5['prompter']}Hi!{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
+    tr = tokenizer(input_text)
+    print(tr)
+    decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
+    print("decoded:", decoded)
 
     model.eval()
     if args.half:
         model = model.half()
-    model = model.to(device)
+
+    # int8 models (load_in_8bit = True + device_map = auto): will cause this method to error
+    if not args.int8:
+        model = model.to(device)
 
     print(f"Loading prompts file: {args.prompts}")
     prompts = load_jsonl(input_file_path=args.prompts)
@@ -290,10 +316,13 @@ def main():
     if args.n:
         prompts = prompts[: args.n]
 
+    args_dict = vars(args)
+    if "auth_token" in args_dict:
+        del args_dict["auth_token"]
     report = SamplingReport(
         model_name=model_name,
         date=datetime.utcnow().isoformat(),
-        args=vars(args),
+        args=args_dict,
         prompts=sample_prompt_continuations(
             prompts=prompts,
             model=model,
