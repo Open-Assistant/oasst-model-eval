@@ -1,0 +1,15 @@
+{
+    "model_name": "llama_30b_oasst_latcyr_400",
+    "results": {
+        "contrastive": -1.484450340270996,
+        "greedy": -1.0284944772720337,
+        "k50": -1.6409449577331543,
+        "nucleus9": -1.1483525037765503,
+        "typical2": -1.480172872543335,
+        "typical3": -1.447158694267273,
+        "mean_reward": "-1.4027866",
+        "RM_score": "-2.79"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-03-18_llama_30b_oasst_latcyr_400_sampling_noprefix_lottery.json"
+}

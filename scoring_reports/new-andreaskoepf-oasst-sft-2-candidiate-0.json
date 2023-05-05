@@ -1,0 +1,15 @@
+{
+    "model_name": "andreaskoepf/oasst-sft-2-candidiate-0",
+    "results": {
+        "contrastive": 1.2786293029785156,
+        "greedy": 1.6036564111709595,
+        "k50": 1.0981594324111938,
+        "nucleus9": 1.4672327041625977,
+        "typical2": 1.2703524827957153,
+        "typical3": 1.3082560300827026,
+        "mean_reward": "1.3135378",
+        "RM_score": "2.57"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-03-30_andreaskoepf_oasst-sft-2-candidiate-0_sampling_noprefix_lottery.json"
+}

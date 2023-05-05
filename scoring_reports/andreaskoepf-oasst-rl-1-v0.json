@@ -1,0 +1,12 @@
+{
+    "model_name": "andreaskoepf/oasst-rl-1-v0",
+    "results": {
+        "greedy": 0.9310471415519714,
+        "k50": 0.44269102811813354,
+        "nucleus9": 0.8072389364242554,
+        "mean_reward": "0.6861814",
+        "RM_score": "1.25"
+    },
+    "reward_model": "OpenAssistant/reward-model-deberta-v3-base",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-rl/2023-04-08_andreaskoepf_oasst-rl-1-v0_sampling_noprefix2.json"
+}

@@ -1,0 +1,11 @@
+{
+    "model_name": "dvruette/llama-13b-pretrained-sft-epoch-1",
+    "results": {
+        "k50": -2.144235610961914,
+        "nucleus9": -1.6609982252120972,
+        "mean_reward": "-1.902617",
+        "RM_score": "-3.81"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-sft/2023-04-05_dvruette_llama-13b-pretrained-sft-epoch-1_sampling_noprefix_small.json"
+}

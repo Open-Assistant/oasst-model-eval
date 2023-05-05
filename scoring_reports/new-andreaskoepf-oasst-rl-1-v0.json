@@ -1,0 +1,12 @@
+{
+    "model_name": "andreaskoepf/oasst-rl-1-v0",
+    "results": {
+        "greedy": 2.0762784481048584,
+        "k50": 1.427365779876709,
+        "nucleus9": 1.8509407043457031,
+        "mean_reward": "1.7265781",
+        "RM_score": "3.28"
+    },
+    "reward_model": "OpenAssistant/oasst-rm-2.1-pythia-1.4b-epoch-2.5",
+    "report": "https://raw.githubusercontent.com/Open-Assistant/oasst-model-eval/main/sampling_reports/oasst-rl/2023-04-08_andreaskoepf_oasst-rl-1-v0_sampling_noprefix2.json"
+}
