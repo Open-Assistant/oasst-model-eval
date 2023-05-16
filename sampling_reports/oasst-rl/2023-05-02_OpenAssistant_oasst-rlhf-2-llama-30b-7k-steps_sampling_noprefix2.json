@@ -18,7 +18,6 @@
     "skip_special_tokens": false,
     "model_type": "CausalLM",
     "max_input_len": null,
-    "auth_token": "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",
     "num_threads": 8
   },
   "prompts": [
