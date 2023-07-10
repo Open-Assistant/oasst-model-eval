@@ -1,0 +1,6 @@
+pandas
+pyplot
+openai
+tiktoken
+tqdm
+numpy
