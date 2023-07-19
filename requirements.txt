@@ -10,4 +10,5 @@ PyYAML>=6.0
 scikit_learn==1.2.0
 torch>=1.11.0
 transformers>=4.31.0
+sentencepiece==0.1.99
 wandb
