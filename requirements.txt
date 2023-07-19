@@ -1,4 +1,4 @@
-pydantic>=1.9.1
+pydantic==1.9.1
 tqdm==4.64.1
 datasets==2.8.0
 evaluate==0.4.0
@@ -9,5 +9,5 @@ py7zr
 PyYAML>=6.0
 scikit_learn==1.2.0
 torch>=1.11.0
-transformers==4.26.1
+transformers>=4.31.0
 wandb
