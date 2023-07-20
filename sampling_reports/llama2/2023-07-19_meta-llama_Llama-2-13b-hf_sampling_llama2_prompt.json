@@ -1,10 +1,10 @@
 {
-  "model_name": "/home/ubuntu/llama2/Llama-2-13b-hf/",
+  "model_name": "meta-llama/Llama-2-13b-hf",
   "date": "2023-07-19T07:08:03.840928",
   "args": {
     "device": "cuda",
     "device_index": 0,
-    "model_name": "meta-llama/Llama-2-13b-hf/",
+    "model_name": "meta-llama/Llama-2-13b-hf",
     "mode": "legacy",
     "prompts": "data/prompt_lottery_en_250_text.jsonl",
     "report": null,

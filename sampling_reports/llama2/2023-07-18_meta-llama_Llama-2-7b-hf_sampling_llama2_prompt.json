@@ -1,5 +1,5 @@
 {
-  "model_name": "/mnt/data/llama2/Llama-2-7b-hf",
+  "model_name": "meta-llama/Llama-2-7b-hf",
   "date": "2023-07-18T21:50:59.646355",
   "args": {
     "device": "cuda",
