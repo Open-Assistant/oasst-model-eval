@@ -92,14 +92,16 @@ def sample(
     if sampling_config.pre_text:
         if mode == "v2" and sampling_config.add_prefix_tokens:
             prefix = f"<prefix>{sampling_config.pre_text}</prefix>"
-        if mode == "v2_5" and sampling_config.add_prefix_tokens:
+        elif mode == "v2_5" and sampling_config.add_prefix_tokens:
             prefix = f"{QA_SPECIAL_TOKENS_V2_5['prefix_begin']}{sampling_config.pre_text}{QA_SPECIAL_TOKENS_V2_5['prefix_end']}"
+        elif mode == "v3":
+            prefix = f"{QA_SPECIAL_TOKENS_V2_5['system']}{sampling_config.pre_text}{tokenizer.eos_token}"
         else:
             prefix = sampling_config.pre_text
 
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
-    elif mode == "v2_5":
+    elif mode == "v2_5" or mode == "v3":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     else:
         assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
@@ -213,8 +215,8 @@ def parse_args():
     parser.add_argument(
         "--mode",
         type=str,
-        default="legacy",
-        help="legacy, v2",
+        default="v3",
+        help="legacy, v2, v2_5, v3",
     )
     parser.add_argument(
         "--prompts", type=str, help="jsonl string prompts input file name", default="./data/en_100_text.jsonl.gz"
