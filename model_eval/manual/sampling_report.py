@@ -289,7 +289,7 @@ def main():
     
     if args.dtype == "auto":
         model_args["torch_dtype"] = "auto"
-    if args.dtype in ('float16', 'fp16'):
+    elif args.dtype in ('float16', 'fp16'):
         model_args["torch_dtype"] = torch.float16
     elif args.dtype in ('bfloat16', 'bf16'):
         model_args["torch_dtype"] = torch.bfloat16
