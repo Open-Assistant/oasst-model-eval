@@ -21,6 +21,10 @@ QA_SPECIAL_TOKENS_V2_5 = {
     "prefix_end": "<|prefix_end|>",
 }
 
+CHATML_TOKENS = {
+    "im_start": "<|im_start|>",
+    "im_end": "<|im_end|>"
+}
 
 class SamplingConfig(pydantic.BaseModel):
     name: Optional[str]
@@ -103,9 +107,12 @@ def sample(
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
     elif mode == "v2_5" or mode == "v3":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
+    elif mode == "chatml":
+        input_text = f"{prefix}{CHATML_TOKENS['im_start']}user\n{prompt}{CHATML_TOKENS['im_end']}\n{CHATML_TOKENS['im_start']}assistant\n"
     else:
         assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
         input_text = f"{prefix}\n{sc.human_name}: {prompt}\n\n{sc.bot_name}: "
+    print('input_text', input_text)
 
     sampling_params = sampling_config.generate_args
     inputs = tokenizer(
@@ -216,7 +223,7 @@ def parse_args():
         "--mode",
         type=str,
         default="v3",
-        help="legacy, v2, v2_5, v3",
+        help="legacy, v2, v2_5, v3, chatml",
     )
     parser.add_argument(
         "--prompts", type=str, help="jsonl string prompts input file name", default="./data/en_100_text.jsonl.gz"
@@ -229,6 +236,7 @@ def parse_args():
     parser.add_argument("--config", type=str, default="config/default.json", help="configuration file path")
     parser.add_argument("--half", action="store_true", default=False, help="use float16")
     parser.add_argument("--int8", action="store_true", default=False, help="use int8 quantization")
+    parser.add_argument("--dtype", type=str, default="auto", help="auto,float16,bfloat16")
     parser.add_argument("--skip-special-tokens", action="store_true", default=False)
     parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional, LLaMA")
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
@@ -278,6 +286,8 @@ def main():
         model_args["load_in_8bit"] = args.int8
         model_args["device_map"] = "auto"
 
+    model_args["torch_dtype"] = args.dtype
+
     if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
         from transformers import AutoModelForCausalLM
 
@@ -293,11 +303,16 @@ def main():
     else:
         raise RuntimeError("Invalid model_type specified")
 
+    print(f"model loaded in {model.dtype}")
+
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
 
     print("Tokenizer check:")
-    input_text = f"{QA_SPECIAL_TOKENS_V2_5['prompter']}Hi!{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
+    if args.mode == "chatml":
+        input_text = f"{CHATML_TOKENS['im_start']}user\nHi!{CHATML_TOKENS['im_end']}\n{CHATML_TOKENS['im_start']}assistant\n"
+    else:
+        input_text = f"{QA_SPECIAL_TOKENS_V2_5['prompter']}Hi!{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     tr = tokenizer(input_text)
     print(tr)
     decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
