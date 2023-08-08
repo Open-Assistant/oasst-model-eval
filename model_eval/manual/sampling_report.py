@@ -286,7 +286,17 @@ def main():
         model_args["load_in_8bit"] = args.int8
         model_args["device_map"] = "auto"
 
-    model_args["torch_dtype"] = args.dtype
+    
+    if args.dtype == "auto":
+        model_args["torch_dtype"] = "auto"
+    if args.dtype in ('float16', 'fp16'):
+        model_args["torch_dtype"] = torch.float16
+    elif args.dtype in ('bfloat16', 'bf16'):
+        model_args["torch_dtype"] = torch.bfloat16
+    elif args.dtype in ('float32', 'fp32'):
+        model_args["torch_dtype"] = torch.float32
+    else:
+        raise RuntimeError(f"Unsupported dtype {args.dtype} specified.")
 
     if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
         from transformers import AutoModelForCausalLM
