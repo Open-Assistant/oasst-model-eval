@@ -328,6 +328,7 @@ def main():
     decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
     print("decoded:", decoded)
 
+    print('generation config:', model.generation_config)
     model.eval()
     if args.half:
         model = model.half()
