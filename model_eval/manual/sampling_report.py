@@ -7,12 +7,18 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
+import requests
 import pydantic
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
-QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
+QA_SPECIAL_TOKENS = {
+    "Question": "<human>",
+    "Answer": "<bot>",
+    "StartPrefix": "<prefix>",
+    "EndPrefix": "</prefix>",
+}
 QA_SPECIAL_TOKENS_V2_5 = {
     "prompter": "<|prompter|>",
     "assistant": "<|assistant|>",
@@ -21,10 +27,8 @@ QA_SPECIAL_TOKENS_V2_5 = {
     "prefix_end": "<|prefix_end|>",
 }
 
-CHATML_TOKENS = {
-    "im_start": "<|im_start|>",
-    "im_end": "<|im_end|>"
-}
+CHATML_TOKENS = {"im_start": "<|im_start|>", "im_end": "<|im_end|>"}
+
 
 class SamplingConfig(pydantic.BaseModel):
     name: Optional[str]
@@ -80,18 +84,15 @@ def load_jsonl(input_file_path: str | Path) -> list[dict | str]:
     return items
 
 
-def sample(
+def format_prompt(
     prompt: str,
-    model,
-    tokenizer: PreTrainedTokenizer,
     mode: str,
     sampling_config: SamplingConfig,
-    device: torch.DeviceObjType,
-    skip_input_tokens: bool,
-    max_input_len: Optional[int] = None,
+    tokenizer: PreTrainedTokenizer,
 ):
     assert sampling_config.name, "'name' must be specified for sampling configuration"
     sc = sampling_config
+
     prefix = ""
     if sampling_config.pre_text:
         if mode == "v2" and sampling_config.add_prefix_tokens:
@@ -110,9 +111,42 @@ def sample(
     elif mode == "chatml":
         input_text = f"{prefix}{CHATML_TOKENS['im_start']}user\n{prompt}{CHATML_TOKENS['im_end']}\n{CHATML_TOKENS['im_start']}assistant\n"
     else:
-        assert sc.human_name and sc.bot_name, "'human_name' and 'bot_name' parameters must be specified in config "
+        assert (
+            sc.human_name and sc.bot_name
+        ), "'human_name' and 'bot_name' parameters must be specified in config "
         input_text = f"{prefix}\n{sc.human_name}: {prompt}\n\n{sc.bot_name}: "
-    print('input_text', input_text)
+    return input_text
+
+
+def sample_tgi(
+    generate_url: str,
+    prompt: str,
+    mode: str,
+    sampling_config: SamplingConfig,
+    tokenizer: PreTrainedTokenizer,
+) -> tuple[str, SamplingConfig]:
+    input_text = format_prompt(prompt, mode, sampling_config, tokenizer)
+    print("input_text", input_text)
+    sampling_params = sampling_config.generate_args
+    data = {"inputs": input_text, "parameters": sampling_params}
+    r = requests.post(generate_url, json=data)
+    r.raise_for_status()
+    response_json = r.json()
+    return response_json["generated_text"], sampling_params
+
+
+def sample(
+    prompt: str,
+    model,
+    tokenizer: PreTrainedTokenizer,
+    mode: str,
+    sampling_config: SamplingConfig,
+    device: torch.DeviceObjType,
+    skip_input_tokens: bool,
+    max_input_len: Optional[int] = None,
+) -> tuple[str, SamplingConfig]:
+    input_text = format_prompt(prompt, mode, sampling_config, tokenizer)
+    print("input_text", input_text)
 
     sampling_params = sampling_config.generate_args
     inputs = tokenizer(
@@ -135,7 +169,9 @@ def sample(
     return output_tokens, sampling_params
 
 
-def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
+def merge_configs(
+    *configs: tuple[Optional[SamplingConfig]],
+) -> Optional[SamplingConfig]:
     merged: SamplingConfig | None = None
     for c in configs:
         if not merged:
@@ -168,6 +204,8 @@ def sample_prompt_continuations(
     skip_input_tokens: bool = False,
     verbose: bool = False,
     max_input_len: Optional[int] = None,
+    tgi_url: Optional[str] = None,
+    use_tgi: bool = False,
 ) -> list[PromptResults]:
     prompt_results: list[PromptResults] = []
     for p in tqdm(prompts):
@@ -177,21 +215,34 @@ def sample_prompt_continuations(
             for i in range(num_samples):
                 if i > 0 and sc.generate_args.get("do_sample") is False:
                     break  # don't repeat greedy sampling
-                output_tokens, sampling_params = sample(
-                    p,
-                    model=model,
-                    tokenizer=tokenizer,
-                    mode=mode,
-                    sampling_config=merge_configs(config.default, sc),
-                    device=device,
-                    skip_input_tokens=skip_input_tokens,
-                    max_input_len=max_input_len,
-                )
-                output = tokenizer.decode(
-                    output_tokens,
-                    truncate_before_pattern=[r"\n\n^#", "^'''", "\n\n\n"],  # only used for codegen model
-                    skip_special_tokens=skip_special_tokens,
-                )
+                if use_tgi:
+                    output, sampling_params = sample_tgi(
+                        tgi_url,
+                        p,
+                        mode=mode,
+                        sampling_config=merge_configs(config.default, sc),
+                        tokenizer=tokenizer,
+                    )
+                else:
+                    output_tokens, sampling_params = sample(
+                        p,
+                        model=model,
+                        tokenizer=tokenizer,
+                        mode=mode,
+                        sampling_config=merge_configs(config.default, sc),
+                        device=device,
+                        skip_input_tokens=skip_input_tokens,
+                        max_input_len=max_input_len,
+                    )
+                    output = tokenizer.decode(
+                        output_tokens,
+                        truncate_before_pattern=[
+                            r"\n\n^#",
+                            "^'''",
+                            "\n\n\n",
+                        ],  # only used for codegen model
+                        skip_special_tokens=skip_special_tokens,
+                    )
 
                 if verbose:
                     print(f"===[ Config: {sc.name} [{i+1}/{num_samples}] ]===\n")
@@ -200,7 +251,11 @@ def sample_prompt_continuations(
                 outputs.append(output)
 
             sampling_results.append(
-                SamplingResult(sampling_config=sc.name, sampling_params=sampling_params, outputs=outputs)
+                SamplingResult(
+                    sampling_config=sc.name,
+                    sampling_params=sampling_params,
+                    outputs=outputs,
+                )
             )
 
         prompt_results.append(PromptResults(prompt=p, results=sampling_results))
@@ -226,22 +281,58 @@ def parse_args():
         help="legacy, v2, v2_5, v3, chatml",
     )
     parser.add_argument(
-        "--prompts", type=str, help="jsonl string prompts input file name", default="./data/en_100_text.jsonl.gz"
+        "--prompts",
+        type=str,
+        help="jsonl string prompts input file name",
+        default="./data/en_100_text.jsonl.gz",
     )
-    parser.add_argument("--report", type=str, help="json sampling report output file name")
-    parser.add_argument("--seed", type=int, default="42", help="psoudo random number generator seed")
+    parser.add_argument(
+        "--report", type=str, help="json sampling report output file name"
+    )
+    parser.add_argument(
+        "--seed", type=int, default="42", help="psoudo random number generator seed"
+    )
     parser.add_argument("--verbose", action="store_true", default=False)
     parser.add_argument("-n", type=int, help="number of promtps to use (default: all)")
-    parser.add_argument("--num-samples", type=int, default=2, help="number of sampling runs per configuration")
-    parser.add_argument("--config", type=str, default="config/default.json", help="configuration file path")
-    parser.add_argument("--half", action="store_true", default=False, help="use float16")
-    parser.add_argument("--int8", action="store_true", default=False, help="use int8 quantization")
-    parser.add_argument("--dtype", type=str, default="auto", help="auto,float16,bfloat16")
+    parser.add_argument(
+        "--num-samples",
+        type=int,
+        default=2,
+        help="number of sampling runs per configuration",
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="config/default.json",
+        help="configuration file path",
+    )
+    parser.add_argument(
+        "--half", action="store_true", default=False, help="use float16"
+    )
+    parser.add_argument(
+        "--int8", action="store_true", default=False, help="use int8 quantization"
+    )
+    parser.add_argument(
+        "--dtype", type=str, default="auto", help="auto,float16,bfloat16"
+    )
     parser.add_argument("--skip-special-tokens", action="store_true", default=False)
-    parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional, LLaMA")
+    parser.add_argument(
+        "--model-type",
+        type=str,
+        default="CausalLM",
+        help="CausalLM, T5Conditional, LLaMA",
+    )
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
     parser.add_argument("--auth-token", type=str)
     parser.add_argument("--num-threads", type=int, default=8)
+    parser.add_argument(
+        "--tgi-generate-url", type=str, default="http://127.0.0.1:8080/generate"
+    )
+    parser.add_argument(
+        "--use-tgi",
+        action="store_true",
+        help="Use TGI server to generate continuations",
+    )
 
     return parser.parse_args()
 
@@ -259,13 +350,19 @@ def main():
 
     args = parse_args()
     if args.int8 and not torch.cuda.is_available():
-        print("Warning: --int8 argument passed but cuda is not available. Ignoring --int8.")
+        print(
+            "Warning: --int8 argument passed but cuda is not available. Ignoring --int8."
+        )
         args.int8 = False
 
     print("Args:", args)
 
     torch.set_num_threads(args.num_threads)
     torch.set_num_interop_threads(args.num_threads)
+
+    if not args.use_tgi:
+        args.device = "cpu"
+        args.device_index = 0
 
     device = torch.device(args.device, args.device_index)
     print("Device:", device)
@@ -286,34 +383,38 @@ def main():
         model_args["load_in_8bit"] = args.int8
         model_args["device_map"] = "auto"
 
-    
     if args.dtype == "auto":
         model_args["torch_dtype"] = "auto"
-    elif args.dtype in ('float16', 'fp16'):
+    elif args.dtype in ("float16", "fp16"):
         model_args["torch_dtype"] = torch.float16
-    elif args.dtype in ('bfloat16', 'bf16'):
+    elif args.dtype in ("bfloat16", "bf16"):
         model_args["torch_dtype"] = torch.bfloat16
-    elif args.dtype in ('float32', 'fp32'):
+    elif args.dtype in ("float32", "fp32"):
         model_args["torch_dtype"] = torch.float32
     else:
         raise RuntimeError(f"Unsupported dtype {args.dtype} specified.")
 
+    model = None
     if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
         from transformers import AutoModelForCausalLM
 
         tokenizer = AutoTokenizer.from_pretrained(model_name, token=args.auth_token)
-        model = AutoModelForCausalLM.from_pretrained(model_name, token=args.auth_token, **model_args)
+        if not args.use_tgi:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name, token=args.auth_token, **model_args
+            )
         skip_input_tokens = True
     elif args.model_type.lower() == "t5conditional":
         from transformers import T5ForConditionalGeneration
 
         tokenizer = AutoTokenizer.from_pretrained(model_name, token=args.auth_token)
-        model = T5ForConditionalGeneration.from_pretrained(model_name, token=args.auth_token, **model_args)
+        if not args.use_tgi:
+            model = T5ForConditionalGeneration.from_pretrained(
+                model_name, token=args.auth_token, **model_args
+            )
         skip_input_tokens = False
     else:
         raise RuntimeError("Invalid model_type specified")
-
-    print(f"model loaded in {model.dtype}")
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
@@ -328,14 +429,19 @@ def main():
     decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
     print("decoded:", decoded)
 
-    print('generation config:', model.generation_config)
-    model.eval()
-    if args.half:
-        model = model.half()
+    if model:
+        print(f"model loaded in {model.dtype}")
+        print("generation config:", model.generation_config)
+        model.eval()
+        if args.half:
+            model = model.half()
 
-    # int8 models (load_in_8bit = True + device_map = auto): will cause this method to error
-    if not args.int8:
-        model = model.to(device)
+        # int8 models (load_in_8bit = True + device_map = auto): will cause this method to error
+        if not args.int8:
+            model = model.to(device)
+    else:
+        print("model not loaded, relying on generation server")
+        assert args.use_tgi
 
     print(f"Loading prompts file: {args.prompts}")
     prompts = load_jsonl(input_file_path=args.prompts)
@@ -363,6 +469,8 @@ def main():
             skip_input_tokens=skip_input_tokens,
             verbose=args.verbose,
             max_input_len=args.max_input_len,
+            tgi_url=args.tgi_generate_url,
+            use_tgi=args.use_tgi,
         ),
     )
 
