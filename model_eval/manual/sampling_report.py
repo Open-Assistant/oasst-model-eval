@@ -333,6 +333,11 @@ def parse_args():
         action="store_true",
         help="Use TGI server to generate continuations",
     )
+    parser.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Whether to use model code part of the input repository/directory",
+    )
 
     return parser.parse_args()
 
@@ -360,7 +365,7 @@ def main():
     torch.set_num_threads(args.num_threads)
     torch.set_num_interop_threads(args.num_threads)
 
-    if not args.use_tgi:
+    if args.use_tgi:
         args.device = "cpu"
         args.device_index = 0
 
@@ -393,6 +398,9 @@ def main():
         model_args["torch_dtype"] = torch.float32
     else:
         raise RuntimeError(f"Unsupported dtype {args.dtype} specified.")
+
+    if args.trust_remote_code:
+        model_args["trust_remote_code"] = True
 
     model = None
     if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
