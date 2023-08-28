@@ -94,15 +94,17 @@ def format_prompt(
     sc = sampling_config
 
     prefix = ""
-    if sampling_config.pre_text:
-        if mode == "v2" and sampling_config.add_prefix_tokens:
-            prefix = f"<prefix>{sampling_config.pre_text}</prefix>"
-        elif mode == "v2_5" and sampling_config.add_prefix_tokens:
-            prefix = f"{QA_SPECIAL_TOKENS_V2_5['prefix_begin']}{sampling_config.pre_text}{QA_SPECIAL_TOKENS_V2_5['prefix_end']}"
+    if sc.pre_text:
+        if mode == "v2" and sc.add_prefix_tokens:
+            prefix = f"<prefix>{sc.pre_text}</prefix>"
+        elif mode == "v2_5" and sc.add_prefix_tokens:
+            prefix = f"{QA_SPECIAL_TOKENS_V2_5['prefix_begin']}{sc.pre_text}{QA_SPECIAL_TOKENS_V2_5['prefix_end']}"
         elif mode == "v3":
-            prefix = f"{QA_SPECIAL_TOKENS_V2_5['system']}{sampling_config.pre_text}{tokenizer.eos_token}"
+            prefix = f"{QA_SPECIAL_TOKENS_V2_5['system']}{sc.pre_text}{tokenizer.eos_token}"
+        elif mode == "chatml":
+            prefix = f"{CHATML_TOKENS['im_start']}system\n{sc.pre_text}{CHATML_TOKENS['im_end']}\n"
         else:
-            prefix = sampling_config.pre_text
+            prefix = sc.pre_text
 
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
