@@ -9,7 +9,9 @@ import openai
 def parse_args():
     # Create argument parser
     parser = argparse.ArgumentParser(description='Enter message into URL')
-    parser.add_argument('--api_key', type=str, default=None, help='URL to open', required=True)
+    parser.add_argument('--api_key', type=str, default=None, help='URL to open')
+    parser.add_argument('--base_url', type=str, default="https://openrouter.ai/api/v1", help="URL of OpenAI compatible inference end point")
+    parser.add_argument('--model', type=str, default="openai/gpt-5-chat", help="model name")
     parser.add_argument('--input_file', type=str, default="data/prompt_lottery_en_250_text.jsonl", help='Path to input file')
     parser.add_argument('--num_samples', type=int, default=1, help='Number of samples to generate')
     parser.add_argument('--verbose', type=bool, default=True, help='Print output')
@@ -24,16 +26,19 @@ def read_input(input_file):
         objs = [json.loads(line) for line in lines]
     return objs
 
-def get_response(message, **params):
-    output = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+def get_response(client: openai.Client, message, **params):
+    output = client.chat.completions.create(
         messages=[
-            {"role": "system", "content": "You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Knowledge cutoff: {knowledge_cutoff} Current date: {current_date}"},
+            #{"role": "system", "content": "You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Knowledge cutoff: {knowledge_cutoff} Current date: {current_date}"},
+            {"role": "system", "content": "You are a helpful assistant. You give engaging, well-structured answers to user inquiries."},
             {"role": "user", "content": message},
         ],
         **params,
     )
-    return output["choices"][0]["message"]["content"]
+    
+    #print(output.choices[0].message)
+
+    return output.choices[0].message.content 
 
 
 def main(args):
@@ -42,13 +47,16 @@ def main(args):
 
     openai.api_key = args.api_key
 
+    client = openai.Client(api_key=args.api_key, base_url=args.base_url)
+    model_name = args.model
+
     args_dict = dict(**args.__dict__)
     del args_dict["api_key"]
     del args_dict["verbose"]
 
     results = []
     sampling_report = {
-        "model_name": "gpt-3.5-turbo",
+        "model_name": model_name,
         "date": datetime.datetime.now().isoformat(),
         "args": args_dict,
         "prompts": results,
@@ -56,19 +64,21 @@ def main(args):
 
     sampling_config = "sample"
     sampling_params = {
-        "max_tokens": 512,
+        "model": model_name,
+        "max_tokens": 8192,
         "temperature": 0.8,
-        "top_p": 1.0,
+        #"top_p": 0.5,
         "frequency_penalty": 0.0,
     }
 
-    output_file = f"{datetime.datetime.now().strftime('%Y-%m-%d')}_{sampling_report['model_name']}_{sampling_config}.jsonl"
+    model_name_sanitized = model_name.replace('/', '_')
+    output_file = f"{datetime.datetime.now().strftime('%Y-%m-%d')}_{model_name_sanitized}_{sampling_config}.jsonl"
 
     try:
         for prompt in tqdm.tqdm(prompts):
             outputs = []
             for i in range(args.num_samples):
-                response = get_response(prompt, **sampling_params)
+                response = get_response(client, prompt, **sampling_params)
                 outputs.append(response)
 
                 if args.verbose:
@@ -81,7 +91,7 @@ def main(args):
                 "results": [{
                     "sampling_config": sampling_config,
                     "sampling_params": sampling_params,
-                    "outputs": [response],
+                    "outputs": outputs,
                 }]
             })
     finally:
